@@ -8,7 +8,6 @@ import ContextProvider from './utils/ContextProvider';
 function App() {
   return (
     <>
-    <ContextProvider>
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -16,7 +15,6 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Router>
-    </ContextProvider>
     </>
   );
 }
