@@ -26,21 +26,21 @@ const Dashboard = () => {
   }
   return (
     <div className='flex flex-row justify-center' style={{ height:'100vh'}}>
-      <div className='w-1/5 bg-blue-600'>
+      <div className='w-1/5 bg-blue-600 p-4'>
         <input
           id="email-address"
           name="email"
           type="email"
           autoComplete="email"
           required
-          className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+          className="relative block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
           placeholder="Email address"
           onChange={(e)=>handleChangeInput(e.target.value)}
         />
         <ul>
           {
             allUsers?.map((usr)=>
-            <li onClick={()=>setReceiver(usr)} className="cursor-pointer">
+            <li onClick={()=>setReceiver(usr)} className="cursor-pointer bg-white text-black px-4 py-1 mt-2 rounded-lg">
               { usr.name }
             </li>
             )
@@ -53,7 +53,7 @@ const Dashboard = () => {
               receiver?.name
             }
           </div>
-          <div className=' bg-purple-500' style={{ height:'80vh' }}>
+          <div className=' bg-purple-500 py-8' style={{ height:'80vh' }}>
             <ul>
               {
                 chats.map((cht)=>    
@@ -66,11 +66,11 @@ const Dashboard = () => {
               }
             </ul>
           </div>
-          <div className='w-full p-4 h-16 bg-gray-400 mt-auto flex justify-center' style={{ height:'10vh'}}>
+          <div className='w-full p-4 h-16 bg-gray-400 mt-auto flex flex-row justify-center items-center' style={{ height:'10vh'}}>
             <form className='flex flex-row' onSubmit={onSubmitChats}>
               <input
               required
-              className="relative block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              className="relative block w-full appearance-none rounded-lg border w-full border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
               placeholder="Enter Message"
               onChange={(e)=>setInputChange(e.target.value)}
             />
