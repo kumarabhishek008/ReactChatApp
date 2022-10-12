@@ -19,6 +19,7 @@ import { AuthContext } from '../utils/ContextProvider';
 const Register = (props) => {
     const { registerUser } = useContext(AuthContext);
     const [registerDetails, setregisterDetails] = useState({
+        name:'',
         email: '',
         password: ''
     });
@@ -56,6 +57,21 @@ const Register = (props) => {
           </div>
           <form className="mt-8 space-y-6" onSubmit={onSubmit}>
             <div className="-space-y-px rounded-md shadow-sm">
+              <div>
+                <label htmlFor="name" className="sr-only">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                  placeholder="Name"
+                  onChange={(e)=>handleChangeInput('name', e.target.value)}
+                />
+              </div>
               <div>
                 <label htmlFor="email-address" className="sr-only">
                   Email address

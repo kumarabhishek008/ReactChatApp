@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import firebaseApp from './firebase';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import {  getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import {  getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where } from "firebase/firestore";
 
 export const AuthContext = createContext();
 
@@ -14,14 +14,14 @@ const ContextProvider = ({ children }) => {
 
     const registerUser = (creds) => { 
         console.log(creds);
-        const { email, password } = creds;
+        const { email, password, name } = creds;
         createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
             // Signed in 
             const user = userCredential.user;
             const docref = doc(db, "users", user.uid);
             const userDetail =await setDoc(docref, {
-                name: "",
+                name: name,
                 email,
                 age: '',
                 address: "",
@@ -37,22 +37,25 @@ const ContextProvider = ({ children }) => {
     }
 
     const loginUser = (creds) => { 
-        console.log(creds);
         const { email, password } = creds;
-        signInWithEmailAndPassword(auth, email, password)
-        .then(async (userCredential) => {
-            // Signed in 
-            const user = userCredential.user;
-            const docref = doc(db, "users", user.uid)
-            const userDetail = await getDoc(docref)
-            console.log(userDetail.data());
-            setUserData(userDetail.data())
-            // ...
+        return new Promise((res, rej)=>{
+            signInWithEmailAndPassword(auth, email, password)
+            .then(async (userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                const docref = doc(db, "users", user.uid)
+                const userDetail = await getDoc(docref)
+                console.log(userDetail.data());
+                setUserData(userDetail.data())
+                res(userDetail.data())
+                // ...
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                rej(error)
+            });
         })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-        });
     }
 
     useEffect(()=>{
@@ -73,9 +76,23 @@ const ContextProvider = ({ children }) => {
           });
     },[])
 
+    const getUserWithName = async (name) => { 
+        return new Promise(async (res, rej)=>{
+            const userRef = collection(db, "users");
+            const usersDoc = await getDocs(query(userRef, where("name","==",name)));
+            console.log(usersDoc, 'user docs')
+            let users = [];
+            usersDoc.forEach(element => {
+                console.log(element.data());
+                users.push(element.data())
+            });
+            res(users)
+        })
+    }
+
   return (
     <>
-    <AuthContext.Provider value={{ registerUser, loginUser, userData }}>
+    <AuthContext.Provider value={{ registerUser, loginUser, userData, getUserWithName }}>
         {
             children
         }

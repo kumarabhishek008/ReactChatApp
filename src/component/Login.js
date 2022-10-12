@@ -28,10 +28,13 @@ const Login = (props) => {
         setloginDetails({...loginDetails, [key]: value });
      }
 
-    const onSubmit = (e) => { 
+    const onSubmit = async (e) => { 
         e.preventDefault();
         console.log(loginDetails)
-        loginUser(loginDetails)
+        const data = await loginUser(loginDetails)
+        if( data?.email ) {
+          window.location.pathname = '/dashboard';
+        }
     }
   return (
     <>
