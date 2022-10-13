@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import firebaseApp from './firebase';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import {  getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where } from "firebase/firestore";
+import {  getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, addDoc, orderBy } from "firebase/firestore";
 
 export const AuthContext = createContext();
 
@@ -13,7 +13,6 @@ const ContextProvider = ({ children }) => {
     const [userData, setUserData] = useState(null)
 
     const registerUser = (creds) => { 
-        console.log(creds);
         const { email, password, name } = creds;
         createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
@@ -21,6 +20,7 @@ const ContextProvider = ({ children }) => {
             const user = userCredential.user;
             const docref = doc(db, "users", user.uid);
             const userDetail =await setDoc(docref, {
+                user_id: user.uid,
                 name: name,
                 email,
                 age: '',
@@ -90,9 +90,44 @@ const ContextProvider = ({ children }) => {
         })
     }
 
+    const sendMessages = async (message, reciever_id) => { 
+        return new Promise( async (res, rej)=>{
+            const chat_id = userData?.user_id > reciever_id ? userData?.user_id+reciever_id : reciever_id+userData?.user_id
+            const docRef = doc(db, "chats", chat_id);
+            const saveChat = await setDoc(docRef, {
+                member1 : userData?.user_id,
+                member2 : reciever_id
+            })
+            const messageRef = collection(docRef, "message")
+            const messages =await addDoc(messageRef, {
+                message: message,
+                member1 : userData?.user_id,
+                member2 : reciever_id,
+                created_at : Date(),
+            })
+            res(messages)
+        })
+    }
+
+    const getListofMessages = (reciever_id) =>{
+        return new Promise(async (resolve, reject) => {
+            const chat_id = userData?.user_id > reciever_id ? userData?.user_id+reciever_id : reciever_id+userData?.user_id;
+            const docRef = doc(db, "chats", chat_id);
+            const messageRef = query(collection(docRef, "message"),orderBy('created_at', "asc"))
+            const messageDocs =await getDocs(messageRef);
+            let data = []
+            messageDocs.forEach((message)=>{
+                console.log(message)
+                data.push(message.data());
+            })
+            resolve(data)
+        })
+
+    } 
+
   return (
     <>
-    <AuthContext.Provider value={{ registerUser, loginUser, userData, getUserWithName }}>
+    <AuthContext.Provider value={{ registerUser, loginUser, userData, getUserWithName, sendMessages, getListofMessages }}>
         {
             children
         }

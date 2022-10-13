@@ -1,9 +1,10 @@
+import { async } from '@firebase/util';
 import React, { useContext, useState } from 'react'
 import { AuthContext } from '../utils/ContextProvider';
 
 const Dashboard = () => {
   
-  const { getUserWithName, userData } = useContext(AuthContext);
+  const { getUserWithName, userData, sendMessages, getListofMessages } = useContext(AuthContext);
   const [name, setname] = useState(null);
   const [allUsers, setAllUsers] = useState(null);
   const [receiver, setReceiver] = useState(null);
@@ -20,9 +21,22 @@ const Dashboard = () => {
     }
   }
 
-  const onSubmitChats = (e) => { 
+  const getallchatsdata = async(receiverDetails) => { 
+    const messages = await getListofMessages(receiverDetails.user_id);
+    console.log(messages, '[my all messages]');
+    if( messages?.length ) setChats([...messages])
+   }
+
+  const handleSetReceiver =async (receiverDetails) => { 
+    setReceiver(receiverDetails);
+    getallchatsdata(receiverDetails)
+  }
+
+  const onSubmitChats =async (e) => { 
     e.preventDefault();
-    setChats([...chats, {message:inputChange, sender:true}])
+    sendMessages(inputChange, receiver.user_id)
+    await setChats([...chats, {message:inputChange, sender:true}]);
+    getallchatsdata(receiver)
   }
   return (
     <div className='flex flex-row justify-center' style={{ height:'100vh'}}>
@@ -40,7 +54,7 @@ const Dashboard = () => {
         <ul>
           {
             allUsers?.map((usr)=>
-            <li onClick={()=>setReceiver(usr)} className="cursor-pointer bg-white text-black px-4 py-1 mt-2 rounded-lg">
+            <li onClick={()=>handleSetReceiver(usr)} className="cursor-pointer bg-white text-black px-4 py-1 mt-2 rounded-lg">
               { usr.name }
             </li>
             )
@@ -53,11 +67,11 @@ const Dashboard = () => {
               receiver?.name
             }
           </div>
-          <div className=' bg-purple-500 py-8' style={{ height:'80vh' }}>
+          <div className=' bg-purple-500 py-8' style={{ height:'80vh', overflow:'auto' }}>
             <ul>
               {
                 chats.map((cht)=>    
-                <li className={ `${cht?.sender ? 'ml-auto' : 'mr-auto'} bg-blue-100 p-2 my-4 w-fit rounded-lg` }>
+                <li className={ `${cht?.member1===userData.user_id ? 'ml-auto' : 'mr-auto'} bg-blue-100 p-2 my-4 w-fit rounded-lg` }>
                   {
                     cht?.message
                   }            
